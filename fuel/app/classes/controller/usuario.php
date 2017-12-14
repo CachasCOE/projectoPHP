@@ -42,8 +42,7 @@ class Controller_usuario extends Controller_Rest
 	    		'data' => [ // información del usuario
                     'id' => $BDuser->id,
 	        		'username' => $username,
-	        		'password'=> $password,
-                    'rol'=> $id_rol
+	        		'password'=> $password
 	    		]
 			);
         }
@@ -59,9 +58,9 @@ class Controller_usuario extends Controller_Rest
     }
 
     public function get_authorization(){
-        $token = $_GET['token'];
+        $jwt = apache_request_headers()['Authorization'];
 
-        $tokenDecode = JWT::decode($token, $this->key , array('HS256'));
+        $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
         
         $username = $tokenDecode->data->username;
         $password = $tokenDecode->data->password;
@@ -85,11 +84,9 @@ class Controller_usuario extends Controller_Rest
     }
 
     public function post_modify(){
-        $input = $_POST;
+        $jwt = apache_request_headers()['Authorization'];
 
-        $token = $input['token'];
-
-        $tokenDecode = JWT::decode($token, $this->key , array('HS256'));
+        $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
         
         $username = $tokenDecode->data->username;
         $password = $tokenDecode->data->password;
@@ -117,11 +114,11 @@ class Controller_usuario extends Controller_Rest
     public function post_createList()
     {
         $input = $_POST;
-        $token = $input['token']
+        $jwt = apache_request_headers()['Authorization'];
         $title = $input['title'];
         //$id_usuario = $input['id_usuario'];
 
-        $tokenDecode = JWT::decode($token, $this->key , array('HS256'));
+        $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
         
         $id = $tokenDecode->data->id;
 
@@ -139,9 +136,9 @@ class Controller_usuario extends Controller_Rest
     }
 
     public function get_lists(){
-        $token = $_GET['token'];
+        $jwt = apache_request_headers()['Authorization'];
 
-        $tokenDecode = JWT::decode($token, $this->key , array('HS256'));
+        $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
         
         $username = $tokenDecode->data->username;
         $password = $tokenDecode->data->password;
@@ -170,23 +167,124 @@ class Controller_usuario extends Controller_Rest
     }
 
     public function post_deleteList(){
+        $jwt = apache_request_headers()['Authorization'];
         $input = $_POST;
-
         $id_item = $input['id_item'];
 
-        $lists = Model_Listas::find('first', array(
-                'where' => array(
-                    array('id', $id_item)
-                    ),
-                ));
+        $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
+        
+        $username = $tokenDecode->data->username;
+        $password = $tokenDecode->data->password;
 
-        if($lists != null){
-            $lists->delete();
-        }
+        $BDuser = Model_Usuarios::find('all', array(
+        'where' => array(
+            array('username', $username),
+            array('password', $password)
+            ),
+        ));
+        if(count($BDuser) == 1){
+            $lists = Model_Listas::find('first', array(
+                    'where' => array(
+                        array('id', $id_item)
+                        ),
+                    ));
+
+            if($lists != null){
+                $lists->delete();
+            }
             
-        return $this->response(array(
-                    'code' => 200,
-                ));;
+            return $this->response(array(
+                        'code' => 200,
+                    ));;
+        }
     }
 
+    public function post_modifyList(){
+        $input = $_POST;
+        $jwt = apache_request_headers()['Authorization'];
+        $title = $input['title'];
+        $id_item = $input['id_item'];
+
+        $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
+        
+        $id = $tokenDecode->data->id;
+
+        $BDuser = Model_Usuarios::find('first', array(
+        'where' => array(
+            array('id', $id)
+            ),
+        ));
+
+        if($BDuser != null){
+            $lists = Model_Listas::find('first', array(
+                    'where' => array(
+                        array('id', $id_item)
+                        ),
+                    ));
+
+            if($lists != null){
+                $lists->title = $input['title'];
+                $lists->save();
+            }
+            
+            return $this->response(array(
+                        'code' => 200,
+                    ));;
+        }
+            
+    }
+
+    public function post_createSong(){
+        $input = $_POST;
+        $jwt = apache_request_headers()['Authorization'];
+        $titulo = $input['titulo'];
+        $direccion = $input['direccion'];
+        //$id_usuario = $input['id_usuario'];
+
+        $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
+        
+        $id = $tokenDecode->data->id;
+
+        $BDuser = Model_Usuarios::find('first', array(
+        'where' => array(
+            array('id', $id)
+            ),
+        ));
+        if($BDuser != null){
+            $new = new Model_Canciones();
+            $new->titulo = $input['titulo'];
+            $new->direccion_youtube = $input['direccion'];
+            $new->save();
+
+            return $this->response(array(
+                    'response' => 200,
+                    'message' => 'cancion creada',
+                    'titulo' => $input['titulo'],
+                ));
+        }
+    }
+
+    public function get_Songs(){
+        $jwt = apache_request_headers()['Authorization'];
+
+        $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
+        
+        $id = $tokenDecode->data->id;
+
+        $BDuser = Model_Usuarios::find('first', array(
+        'where' => array(
+            array('id', $id)
+            ),
+        ));
+
+        if($BDuser != null){
+            $users = Model_Canciones::find('all');
+            $json = $this->response(array(
+                    'code' => 200,
+                    'data' => $users
+                ));
+        }
+            
+        return $json;
+    }
 }
