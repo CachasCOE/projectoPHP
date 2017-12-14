@@ -117,7 +117,9 @@ class Controller_usuario extends Controller_Rest
     public function post_createList()
     {
         $input = $_POST;
-        $token = $input['token'];
+        $token = $input['token']
+        $title = $input['title'];
+        //$id_usuario = $input['id_usuario'];
 
         $tokenDecode = JWT::decode($token, $this->key , array('HS256'));
         
