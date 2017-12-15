@@ -78,8 +78,12 @@ class Controller_usuario extends Controller_Rest
                     'code' => 200,
                     'data' => $users
                 ));
+        }else {
+            $json = $this->response(array(
+                    'code' => 500,
+                    'message' => 'Invalid user'
+                ));
         }
-            
         return $json;
     }
 
@@ -102,13 +106,18 @@ class Controller_usuario extends Controller_Rest
             $BDuser->username = $input['username'];
             $BDuser->password = $input['password'];
             $BDuser->save();
-        }
-            
-        return $this->response(array(
+            $json = $this->response(array(
                     'code' => 200,
                     'username' => $input['username'],
                     'password' => $input['password']
                 ));;
+        } else {
+            $json = $this->response(array(
+                    'code' => 500,
+                    'message' => 'Invalid user'
+                ));
+        }
+           return $json;
     }
 
     public function post_createList()
@@ -122,17 +131,30 @@ class Controller_usuario extends Controller_Rest
         
         $id = $tokenDecode->data->id;
 
+         $BDuser = Model_Usuarios::find('first', array(
+        'where' => array(
+            array('id', $id)
+            ),
+        ));
 
-        $new = new Model_Listas();
-        $new->title = $input['title'];
-        $new->id_usuario = $id;
-        $new->save();
+        if($BDuser != null){
+            $new = new Model_Listas();
+            $new->title = $input['title'];
+            $new->id_usuario = $id;
+            $new->save();
 
-        return $this->response(array(
-                'response' => 200,
-                'message' => 'lista creada',
-                'title' => $input['title'],
-            ));
+            $json = $this->response(array(
+                    'response' => 200,
+                    'message' => 'lista creada',
+                    'title' => $input['title'],
+                ));
+        }else {
+            $json = $this->response(array(
+                    'code' => 500,
+                    'message' => 'Invalid user'
+                ));
+        }
+           return $json;
     }
 
     public function get_lists(){
@@ -161,9 +183,13 @@ class Controller_usuario extends Controller_Rest
                     'code' => 200,
                     'data' => $lists
                 ));
+        }else {
+            $json = $this->response(array(
+                    'code' => 500,
+                    'message' => 'Invalid user'
+                ));
         }
-            
-        return $json;
+           return $json;
     }
 
     public function post_deleteList(){
@@ -193,9 +219,14 @@ class Controller_usuario extends Controller_Rest
                 $lists->delete();
             }
             
-            return $this->response(array(
+            $json = $this->response(array(
                         'code' => 200,
                     ));;
+        } else {
+            $json = $this->response(array(
+                    'code' => 500,
+                    'message' => 'Songs not found'
+                ));
         }
     }
 
@@ -227,11 +258,17 @@ class Controller_usuario extends Controller_Rest
                 $lists->save();
             }
             
-            return $this->response(array(
+            $json = $this->response(array(
                         'code' => 200,
+                        'message' => 'List modified'
                     ));;
+        } else {
+            $json = $this->response(array(
+                    'code' => 500,
+                    'message' => 'Invalid user'
+                ));
         }
-            
+           return $json; 
     }
 
     public function post_createSong(){
@@ -256,12 +293,18 @@ class Controller_usuario extends Controller_Rest
             $new->direccion_youtube = $input['direccion'];
             $new->save();
 
-            return $this->response(array(
+            $json = $this->response(array(
                     'response' => 200,
                     'message' => 'cancion creada',
                     'titulo' => $input['titulo'],
                 ));
+        } else {
+            $json = $this->response(array(
+                    'code' => 500,
+                    'message' => 'Couldnt create song(User not found)'
+                ));
         }
+        return $json;
     }
 
     public function get_Songs(){
@@ -283,8 +326,14 @@ class Controller_usuario extends Controller_Rest
                     'code' => 200,
                     'data' => $users
                 ));
+        }else {
+            $json = $this->response(array(
+                    'code' => 500,
+                    'message' => 'Songs not found'
+                ));
         }
             
         return $json;
+        
     }
 }
