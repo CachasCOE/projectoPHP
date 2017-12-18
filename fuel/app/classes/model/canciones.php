@@ -3,7 +3,7 @@
 class Model_Canciones extends Orm\Model
 {
 	protected static $_table_name = 'canciones';
-    protected static $_properties = array('id', 'direccion_youtube','titulo');
+    protected static $_properties = array('id', 'artista','direccion_youtube','titulo');
     protected static $_many_many = array(
 	    'listas' => array(
 	        'key_from' => 'id',

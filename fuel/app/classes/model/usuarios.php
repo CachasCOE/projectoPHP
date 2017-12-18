@@ -3,7 +3,7 @@
 class Model_Usuarios extends Orm\Model
 {
 	protected static $_table_name = 'usuarios';
-    protected static $_properties = array('id', 'username', 'password', 'id_rol');
+    protected static $_properties = array('id', 'username','email', 'password', 'id_rol');
     protected static $_has_many = array(
 	    'listas' => array(
 	        'key_from' => 'id',
@@ -11,16 +11,16 @@ class Model_Usuarios extends Orm\Model
 	        'key_to' => 'id_usuario',
 	        'cascade_save' => true,
 	        'cascade_delete' => true,
-	    ),
+	    )/*,
 	    'noticias' => array(
 	        'key_from' => 'id',
 	        'model_to' => 'Model_Noticias',
 	        'key_to' => 'id_usuario',
 	        'cascade_save' => true,
 	        'cascade_delete' => true,
-	    )
+	    )*/
 	);
-	protected static $_belongs_to = array(
+	/*protected static $_belongs_to = array(
 	    'rol' => array(
 	        'key_from' => 'id_usuario',
 	        'model_to' => 'Model_Usuarios',
@@ -50,5 +50,5 @@ class Model_Usuarios extends Orm\Model
 	        'cascade_save' => true,
 	        'cascade_delete' => true,
 	    )
-	);
+	);*/
 }

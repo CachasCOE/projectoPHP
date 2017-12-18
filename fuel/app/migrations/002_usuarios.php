@@ -8,8 +8,9 @@ class usuarios
     {
         \DBUtil::create_table('usuarios', array(
             'id' => array('type' => 'int', 'constraint' => 11, 'auto_increment' => true),
-            'username' => array('type' => 'varchar', 'constraint' => 100),
-            'password' => array('type' => 'varchar', 'constraint' => 100),
+            'username' => array('type' => 'varchar', 'constraint' => 100, 'null' => false),
+            'email' => array('type' => 'varchar', 'constraint' => 100, 'null' => false),
+            'password' => array('type' => 'varchar', 'constraint' => 100, 'null' => false),
             'id_rol' => array('type' => 'int', 'constraint' => 11),
         ), array('id'), false, 'InnoDB', 'utf8_unicode_ci',
                 array(
@@ -26,6 +27,9 @@ class usuarios
                     
                 )
 		);
+
+        \DB::query("ALTER TABLE `usuarios` ADD UNIQUE (`username`)")->execute();
+        \DB::query("ALTER TABLE `usuarios` ADD UNIQUE (`email`)")->execute();
     }
 
     function down()
