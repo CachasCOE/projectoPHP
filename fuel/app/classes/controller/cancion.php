@@ -19,6 +19,7 @@ class Controller_lista extends Controller_Rest
 				array('id', $id)
 			),
 		));
+
 		if($BDuser != null){
 			$new = new Model_Canciones();
 			$new->titulo = $input['titulo'];
@@ -61,6 +62,7 @@ class Controller_lista extends Controller_Rest
 				'message' => 'lista de canciones',
 				'data' => $users
 			));
+			
 		}else {
 			$json = $this->response(array(
 				'code' => 400,
@@ -187,7 +189,7 @@ class Controller_lista extends Controller_Rest
 		} else {
 			$json = $this->response(array(
 				'code' => 400,
-				'message' => 'Songs not found'
+				'message' => 'User not found'
 			));
 		}
 	}

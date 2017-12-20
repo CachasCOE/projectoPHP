@@ -8,20 +8,28 @@ class Controller_usuario extends Controller_Rest
     public function post_create()
     {
         $input = $_POST;
-        $new = new Model_Usuarios();
-        $new->username = $input['username'];
-        $new->email = $input['email'];
-        $new->password = $input['password'];
-        $new->id_rol = $input['rol'];
-        $new->save();
+        if (array_key_exists('username', $input)&& array_key_exists('email', $input) && array_key_exists('password', $input) && array_key_exists('rol', $input)){
+            $new = new Model_Usuarios();
+            $new->username = $input['username'];
+            $new->email = $input['email'];
+            $new->password = $input['password'];
+            $new->id_rol = $input['rol'];
+            $new->save();
 
-        return $this->response(array(
-            'response' => 200,
-            'message' => 'usuario creado',
-            'username' => $input['username'],
-            'password' => $input['password'],
-            'rol' => $input['rol']
-        ));
+            $json = $this->response(array(
+                'response' => 200,
+                'message' => 'usuario creado',
+                'username' => $input['username'],
+                'password' => $input['password'],
+                'rol' => $input['rol']
+            ));
+        } else{
+            $json = $this->response(array(
+                'response' => 400,
+                'message' => 'Invalid parameters'
+            ));
+        }
+        return $json;
     }
 
     public function get_login()

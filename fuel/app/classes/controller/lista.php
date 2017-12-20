@@ -11,7 +11,7 @@ class Controller_lista extends Controller_Rest
 		$jwt = apache_request_headers()['Authorization'];
 		$title = $input['title'];
         //$id_usuario = $input['id_usuario'];
-
+		
 		$tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
 
 		$id = $tokenDecode->data->id;
@@ -104,17 +104,22 @@ class Controller_lista extends Controller_Rest
 
 			if($lists != null){
 				$lists->delete();
-			}
 
-			$json = $this->response(array(
-				'code' => 200,
-				'message' => 'List delete',
-				'data' => $lists
-			));;
+				$json = $this->response(array(
+					'code' => 200,
+					'message' => 'List delete',
+					'data' => $lists
+				));;
+			}else{
+				$json = $this->response(array(
+				'code' => 400,
+				'message' => 'List not found'
+				));
+			}
 		} else {
 			$json = $this->response(array(
 				'code' => 400,
-				'message' => 'Songs not found'
+				'message' => 'user not found'
 			));
 		}
 	}
