@@ -58,7 +58,7 @@ class Controller_lista extends Controller_Rest
 				array('password', $password)
 			),
 		));
-
+		
 		if(count($BDuser) == 1){
 			$lists = Model_Listas::find('all', array(
 				'where' => array(

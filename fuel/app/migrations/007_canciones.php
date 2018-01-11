@@ -11,6 +11,7 @@ class canciones
                 'direccion_youtube' => array('type' => 'varchar', 'constraint' => 100),
                 'artista' => array('type' => 'varchar', 'constraint' => 100),
                 'titulo' => array('type' => 'varchar', 'constraint' => 100),
+                'reproductions' => array('type' => 'int', 'constraint' => 255),
             ), array('id')
         ); 
         \DB::query("ALTER TABLE `canciones` ADD UNIQUE (`direccion_youtube`)")->execute();  

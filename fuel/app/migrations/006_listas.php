@@ -9,6 +9,7 @@ class listas
         \DBUtil::create_table('listas', array(
             'id' => array('type' => 'int', 'constraint' => 5, 'auto_increment' => true),
             'title' => array('type' => 'varchar', 'constraint' => 100),
+            'editable' => array('type' => 'bool'),
             'id_usuario' => array('type' => 'int', 'constraint' => 5),
         ), array('id'), false, 'InnoDB', 'utf8_unicode_ci',
                 array(

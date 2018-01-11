@@ -7,8 +7,8 @@ class listasTienen
     function up()
     {
         \DBUtil::create_table('listasTienen', array(
-            'id_lista' => array('type' => 'int', 'constraint' => 11),
-            'id_cancion' => array('type' => 'int', 'constraint' => 11),
+            'id_lista' => array('type' => 'int', 'constraint' => 5),
+            'id_cancion' => array('type' => 'int', 'constraint' =>11),
         ), array('id_lista','id_cancion'),false,'InnoDB', 'utf8_unicode_ci',array(
         array(
             'constraint' => 'claveAjenaListasTienenAListas',

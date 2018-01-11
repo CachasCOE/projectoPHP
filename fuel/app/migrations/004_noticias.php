@@ -9,6 +9,7 @@ class noticias
         \DBUtil::create_table('noticias', array(
             'id' => array('type' => 'int', 'constraint' => 11, 'auto_increment' => true),
             'descripcion' => array('type' => 'varchar', 'constraint' => 100),
+            'title' => array('type' => 'varchar', 'constraint' => 50),
             'id_usuario' => array('type' => 'int', 'constraint' => 11),
         ), array('id'), false, 'InnoDB', 'utf8_unicode_ci',
                 array(

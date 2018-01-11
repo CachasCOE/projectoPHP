@@ -3,7 +3,7 @@
 class Model_Noticias extends Orm\Model
 {
 	protected static $_table_name = 'noticias';
-    protected static $_properties = array('id', 'descripcion','id_usuario');
+    protected static $_properties = array('id', 'descripcion','id_usuario','title');
     protected static $_belongs_to = array(
 	    'usuarios' => array(
 	        'key_from' => 'id_usuario',
