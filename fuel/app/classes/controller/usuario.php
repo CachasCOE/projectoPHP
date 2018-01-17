@@ -8,7 +8,7 @@ class Controller_usuario extends Controller_Rest
     public function post_create()
     {
         $input = $_POST;
-        if (array_key_exists('username', $input)&& array_key_exists('email', $input) && array_key_exists('passwordRepeat', $input) && array_key_exists('password', $input) && array_key_exists('rol', $input)){
+        if (array_key_exists('username', $input)&& array_key_exists('email', $input) && array_key_exists('passwordRepeat', $input) && array_key_exists('password', $input) && array_key_exists('rol', $input) && array_key_exists('x', $input) && array_key_exists('y', $input) && array_key_exists('id_device', $input)){
             $BDuser = Model_Usuarios::find('first', array(
                 'where' => array(
                     array('username', $input['username'])
@@ -27,6 +27,14 @@ class Controller_usuario extends Controller_Rest
                         $new->email = $input['email'];
                         $new->password = $input['password'];
                         $new->id_rol = $input['rol'];
+                        $new->x = $input['x'];
+                        $new->y = $input['y'];
+                        $new->id_device = $input['id_device'];
+                        $new->profile_photo = $input['profile_photo'];
+                        $new->birthday = $input['birthday'];
+                        $new->city = $input['city'];
+                        $new->description = $input['description'];
+                        $new->id_privacity = $input['id_privacity'];
                         $new->save();
 
                         $this->Mensaje('200', 'usuario creado', $input);
@@ -50,15 +58,15 @@ class Controller_usuario extends Controller_Rest
         $password = $_GET['password'];
         if(!empty($username) && !empty($password)){
             $BDuser = Model_Usuarios::find('first', array(
-               'where' => array(
-                   array('username', $username),
-                   array('password', $password)
-               ),
-           ));
+             'where' => array(
+                 array('username', $username),
+                 array('password', $password)
+             ),
+         ));
 
             if(count($BDuser) == 1){
-               $time = time();
-               $token = array(
+             $time = time();
+             $token = array(
                 'iat' => $time,
                 'data' => [ // información del usuario
                 'id' => $BDuser->id,
@@ -67,10 +75,10 @@ class Controller_usuario extends Controller_Rest
             ]
         );
 
-               $jwt = JWT::encode($token, $this->key);
+             $jwt = JWT::encode($token, $this->key);
 
-               $this->Mensaje('200', 'usuario logueado', $jwt);
-           } else {
+             $this->Mensaje('200', 'usuario logueado', $jwt);
+         } else {
             $this->Mensaje('400', 'usuario invalido', $username);
         }
     }else {
@@ -78,7 +86,44 @@ class Controller_usuario extends Controller_Rest
     }
 }
 
-public function get_authorization(){
+public function post_loginAPP()
+{
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    if(!empty($username) && !empty($password)){
+        $BDuser = Model_Usuarios::find('first', array(
+         'where' => array(
+             array('username', $username),
+             array('password', $password)
+         ),
+     ));
+
+        if(count($BDuser) == 1){
+         $time = time();
+         $token = array(
+            'iat' => $time,
+                'data' => [ // información del usuario
+                'id' => $BDuser->id,
+                'username' => $username,
+                'password'=> $password,
+                'x'=>$BDuser->x,
+                'y'=>$BDuser->y,
+            ]
+        );
+
+         $jwt = JWT::encode($token, $this->key);
+
+         $this->Mensaje('200', 'usuario logueado', $jwt);
+     } else {
+        $this->Mensaje('400', 'usuario invalido', $username);
+    }
+}else {
+    $this->Mensaje('400', 'parametros vacios', $username);
+}
+}
+
+
+public function get_Users(){
     $jwt = apache_request_headers()['Authorization'];
 
     $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
@@ -156,6 +201,93 @@ public function post_deleteUser(){
     } else {
         $this->Mensaje('400', 'token vacio', $jwt);
     }
+}
+
+function get_getNearUsers(){
+    $jwt = apache_request_headers()['Authorization'];
+
+    $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
+
+    $id = $tokenDecode->data->id;
+    $x = $tokenDecode->data->x;
+    $y = $tokenDecode->data->y;
+
+    $BDuser = Model_Usuarios::find('first', array(
+        'where' => array(
+            array('id', $id)
+        ),
+    ));
+
+    if(count($BDuser) == 1){
+        Model_Usuarios::find('all', array(
+            'where' => array(
+                array('x', $x),
+                array('y', $y)
+            ),
+        ));
+        $this->Mensaje('200', 'lista de usuarios cercanos', $users);
+    }else {
+        $this->Mensaje('400', 'usuario invalido', $username);
+    }
+}
+
+public function get_recoverPassword(){
+    $email = $_GET['email'];
+    try{
+        $BDuser = Model_Usuarios::find('first', array(
+            'where' => array(
+                array('email', $email)
+            ),
+        ));
+        if($BDuser != null){
+
+
+
+            $this->Mensaje('200', 'email correcto', $BDuser);
+        } else {
+            $this->Mensaje('400', 'email invalido', $email);
+        }
+
+    }catch(Exception $e) {
+        $this->Mensaje('500', 'Error de servidor', "aprender a programar");
+    }
+}
+
+function post_configAdmin(){
+    $BDuser = Model_Usuarios::find('first', array(
+        'where' => array(
+            array('username', 'admin')
+        ),
+    ));
+    $BDemail = Model_Usuarios::find('first', array(
+        'where' => array(
+            array('email', 'admin@admin.es')
+        ),
+    ));
+    if(count($BDemail) < 1){
+        if(count($BDuser) < 1){
+            $new = new Model_Usuarios();
+            $new->username = 'admin';
+            $new->email = 'admin@admin.es';
+            $new->password = '1234';
+            $new->id_rol = '1';
+            $new->x = '0';
+            $new->y = '0';
+            $new->id_device = '0';
+            $new->profile_photo = 'foto';
+            $new->birthday = '01/01/1990';
+            $new->city = 'madrid';
+            $new->description = 'admin';
+            $new->id_privacity = '1';
+            $new->save();
+
+            $this->Mensaje('200', 'usuario admin creado', 'admin');
+        } else {
+            $this->Mensaje('400', 'usuario ya existe', $input['username']);
+        }
+    } else {
+        $this->Mensaje('400', 'email ya esta en uso', $input['email']);
+    }     
 }
 
 function Mensaje($code, $message, $data){
