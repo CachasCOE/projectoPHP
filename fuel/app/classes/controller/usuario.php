@@ -135,8 +135,8 @@ public function get_Users(){
         'where' => array(
             array('username', $username),
             array('password', $password)
-        ),
-    ));
+            ),
+        ));
 
     if(count($BDuser) == 1){
         $users = Model_Usuarios::find('all');
@@ -162,8 +162,8 @@ public function post_modify(){
             'where' => array(
                 array('username', $username),
                 array('password', $password)
-            ),
-        ));
+                ),
+            ));
 
         if($BDuser != null){
             $BDuser->password = $input['password'];
@@ -188,8 +188,8 @@ public function post_deleteUser(){
         $BDuser = Model_Usuarios::find('first', array(
             'where' => array(
                 array('id', $id)
-            ),
-        ));
+                ),
+            ));
         if($BDuser != null){
 
             $BDuser->delete();
@@ -215,16 +215,16 @@ function get_getNearUsers(){
     $BDuser = Model_Usuarios::find('first', array(
         'where' => array(
             array('id', $id)
-        ),
-    ));
+            ),
+        ));
 
     if(count($BDuser) == 1){
         Model_Usuarios::find('all', array(
             'where' => array(
                 array('x', $x),
                 array('y', $y)
-            ),
-        ));
+                ),
+            ));
         $this->Mensaje('200', 'lista de usuarios cercanos', $users);
     }else {
         $this->Mensaje('400', 'usuario invalido', $username);
@@ -237,8 +237,8 @@ public function get_recoverPassword(){
         $BDuser = Model_Usuarios::find('first', array(
             'where' => array(
                 array('email', $email)
-            ),
-        ));
+                ),
+            ));
         if($BDuser != null){
 
 
@@ -257,13 +257,13 @@ function post_configAdmin(){
     $BDuser = Model_Usuarios::find('first', array(
         'where' => array(
             array('username', 'admin')
-        ),
-    ));
+            ),
+        ));
     $BDemail = Model_Usuarios::find('first', array(
         'where' => array(
             array('email', 'admin@admin.es')
-        ),
-    ));
+            ),
+        ));
     if(count($BDemail) < 1){
         if(count($BDuser) < 1){
             $new = new Model_Usuarios();
@@ -288,6 +288,74 @@ function post_configAdmin(){
     } else {
         $this->Mensaje('400', 'email ya esta en uso', $input['email']);
     }     
+}
+
+function post_followUser(){
+    $jwt = apache_request_headers()['Authorization'];
+
+    $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
+
+    $idLogged = $tokenDecode->data->id;
+    $idSeguido = $_POST['id_seguido'];
+    //print($idSeguido);
+    $BDuser = Model_Usuarios::find('all', array(
+        'where' => array(
+            array('id', $idLogged)
+            ),
+        ));
+    $BDuser2 = Model_UsuariosSiguen::find('all', array(
+        'where' => array(
+            array('id_usuario', $idLogged),
+            array('id_usuarioSeguido', $idSeguido)
+            ),
+        ));
+    if(empty($BDuser2)){
+        if(!empty($BDuser)){
+            $new = new Model_UsuariosSiguen();
+            $new->id_usuario = $idLogged;
+            $new->id_usuarioSeguido = $idSeguido;
+            $new->save();
+            $this->Mensaje('200', 'usuario seguido', $BDuser);
+        } else {
+            $this->Mensaje('400', 'usuario no encontrado', $idSeguido);
+        }
+    }else {
+        $this->Mensaje('400', 'usuario ya seguido', $idSeguido);
+    }
+}
+
+function post_unFollowUser(){
+    $jwt = apache_request_headers()['Authorization'];
+
+    $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
+
+    $idLogged = $tokenDecode->data->id;
+    $idUnfollowed = $_POST['id_unfollowed'];
+    //print($idSeguido);
+    $BDuser = Model_Usuarios::find('all', array(
+        'where' => array(
+            array('id', $idLogged)
+            ),
+        ));
+    $BDuser2 = Model_UsuariosSiguen::find('first', array(
+        'where' => array(
+            array('id_usuario', $idLogged),
+            array('id_usuarioSeguido', $idUnfollowed)
+            ),
+        ));
+    
+    if(!empty($BDuser2)){
+        if(!empty($BDuser)){
+            $BDuser2->delete();
+            $this->Mensaje('200', 'usuario unfollowed', $BDuser);
+        } else {
+            $this->Mensaje('400', 'usuario no encontrado', $idUnfollowed);
+        }
+    }else {
+        $this->Mensaje('400', 'no sigues al usuario', $idUnfollowed);
+    }
+
+
 }
 
 function Mensaje($code, $message, $data){
