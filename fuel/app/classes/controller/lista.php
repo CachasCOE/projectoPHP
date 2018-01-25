@@ -10,6 +10,7 @@ class Controller_lista extends Controller_Rest
 		$input = $_POST;
 		$jwt = apache_request_headers()['Authorization'];
 		$title = $input['title'];
+		$editable = $input['editable'];
         //$id_usuario = $input['id_usuario'];
 		
 		$tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
@@ -26,21 +27,13 @@ class Controller_lista extends Controller_Rest
 			$new = new Model_Listas();
 			$new->title = $input['title'];
 			$new->id_usuario = $id;
+			$new->editable = $input['editable'];
 			$new->save();
 
-			$json = $this->response(array(
-				'response' => 200,
-				'message' => 'lista creada',
-				'title' => $input['title'],
-			));
+			$this->Mensaje('200', 'lista creada', $input['title']);
 		}else {
-			$json = $this->response(array(
-				'code' => 400,
-				'message' => 'Invalid user',
-				'data' => 'empty'
-			));
+			$this->Mensaje('400', 'usuario no valido', $jwt);
 		}
-		return $json;
 	}
 
 	public function get_lists(){
@@ -65,19 +58,10 @@ class Controller_lista extends Controller_Rest
 					array('id_usuario', $id)
 				),
 			));
-			$json = $this->response(array(
-				'code' => 200,
-				'message' => 'lista de listas',
-				'data' => $lists
-			));
+			$this->Mensaje('200', 'lista de listas', $lists);
 		}else {
-			$json = $this->response(array(
-				'code' => 400,
-				'message' => 'Invalid user',
-				'data' => 'empty'
-			));
+			$this->Mensaje('400', 'usuario no valido', $id);
 		}
-		return $json;
 	}
 
 	public function post_deleteList(){
@@ -95,7 +79,7 @@ class Controller_lista extends Controller_Rest
 			),
 		));
 		if(count($BDuser) == 1){
-			$lists = Model_Listas::find('all', array(
+			$lists = Model_Listas::find('first', array(
 				'where' => array(
 					array('id_usuario', $id ),
 					array('id', $id_item)
@@ -105,22 +89,12 @@ class Controller_lista extends Controller_Rest
 			if($lists != null){
 				$lists->delete();
 
-				$json = $this->response(array(
-					'code' => 200,
-					'message' => 'List delete',
-					'data' => $lists
-				));;
+				$this->Mensaje('200', 'lista borrada', $lists);
 			}else{
-				$json = $this->response(array(
-				'code' => 400,
-				'message' => 'List not found'
-				));
+				$this->Mensaje('400', 'lista no encontrada', $lists);
 			}
 		} else {
-			$json = $this->response(array(
-				'code' => 400,
-				'message' => 'user not found'
-			));
+			$this->Mensaje('400', 'usuario no valido', $id);
 		}
 	}
 
@@ -129,10 +103,11 @@ class Controller_lista extends Controller_Rest
 		$input = $_POST;
 		$jwt = apache_request_headers()['Authorization'];
 
-		if (array_key_exists('title', $input)&& array_key_exists('id_item', $input)) {
+		if (array_key_exists('title', $input)&& array_key_exists('id_item', $input) && array_key_exists('editable', $input)) {
 
 			$title = $input['title'];
 			$id_item = $input['id_item'];
+			$editable = $input['editable'];
 			$tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
 
 			$id = $tokenDecode->data->id;
@@ -144,7 +119,7 @@ class Controller_lista extends Controller_Rest
 			));
 
 			if($BDuser != null){
-				$lists = Model_Listas::find('all', array(
+				$lists = Model_Listas::find('first', array(
 					'where' => array(
 						array('id_usuario', $id),
 						array('id', $id_item)
@@ -152,34 +127,31 @@ class Controller_lista extends Controller_Rest
 				));
 
 				if($lists != null){
-					$lists->title = $input['title'];
+					$lists->title = $title;
+					$lists->editable = $editable;
 					$lists->save();
 
 
-					$json = $this->response(array(
-						'code' => 200,
-						'message' => 'List modified',
-						'data' => $lists
-					));;
+					$this->Mensaje('200', 'lista modificada', $lists);
 				}else{
-					$json = $this->response(array(
-						'code' => 400,
-						'message' => 'You dont have access to that list'
-					));
+					$this->Mensaje('400', 'no tienes acceso a esa lista', $lists);
 				}
 			} else {
-				$json = $this->response(array(
-					'code' => 400,
-					'message' => 'Invalid user'
-				));
+				$this->Mensaje('400', 'usuario no valido', $lists);
 			}
 
 		}else {
-			$json = $this->response(array(
-				'code' => 400,
-				'message' => 'invalid parameters'
-			));
+			$this->Mensaje('400', 'parametros invalidos', $input);
 		}
-		return $json;
 	}
+
+function Mensaje($code, $message, $data){
+    $json = $this->response(array(
+        'code' => $code,
+        'message' => $message,
+        'data' => $data
+    ));
+    return $json;
+}
+
 }

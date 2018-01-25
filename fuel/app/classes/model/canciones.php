@@ -5,7 +5,7 @@ class Model_Canciones extends Orm\Model
 	protected static $_table_name = 'canciones';
     protected static $_properties = array('id', 'artista','direccion_youtube','titulo','reproductions');
     protected static $_primary_key = array('id');
-    protected static $_many_many = array(
+    /*protected static $_many_many = array(
 	    'listas' => array(
 	        'key_from' => 'id',
 	        'key_through_from' => 'id_cancion', 
@@ -16,5 +16,5 @@ class Model_Canciones extends Orm\Model
 	        'cascade_save' => true,
 	        'cascade_delete' => true,
 	    )
-	);
+	);*/
 }
