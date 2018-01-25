@@ -219,7 +219,7 @@ function get_getNearUsers(){
         ));
 
     if(count($BDuser) == 1){
-        Model_Usuarios::find('all', array(
+        $users = Model_Usuarios::find('all', array(
             'where' => array(
                 array('x', $x),
                 array('y', $y)
@@ -354,8 +354,31 @@ function post_unFollowUser(){
     }else {
         $this->Mensaje('400', 'no sigues al usuario', $idUnfollowed);
     }
+}
 
+function get_getFollowedUsers(){
+    $jwt = apache_request_headers()['Authorization'];
 
+    $tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
+
+    $id = $tokenDecode->data->id;
+
+    $BDuser = Model_Usuarios::find('first', array(
+        'where' => array(
+            array('id', $id)
+            ),
+        ));
+
+    if(count($BDuser) == 1){
+        $users = Model_UsuariosSiguen::find('all', array(
+            'where' => array(
+                array('id_usuario', $id)
+                ),
+            ));
+        $this->Mensaje('200', 'lista de usuarios seguidos', $users);
+    }else {
+        $this->Mensaje('400', 'usuario invalido', $username);
+    }
 }
 
 function Mensaje($code, $message, $data){

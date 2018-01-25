@@ -1,7 +1,10 @@
 <?php
 use Firebase\JWT\JWT;
-class Controller_lista extends Controller_Rest
+class Controller_cancion extends Controller_Rest
 {
+	private $key = 'my_secret_key';
+    protected $format = 'json';
+    
 	public function post_createSong(){
 		$input = $_POST;
 		$jwt = apache_request_headers()['Authorization'];
@@ -25,21 +28,13 @@ class Controller_lista extends Controller_Rest
 			$new->titulo = $input['titulo'];
 			$new->direccion_youtube = $input['direccion'];
 			$new->artista = $input['artista'];
+			$new->reproductions = '0';
 			$new->save();
 
-			$json = $this->response(array(
-				'response' => 200,
-				'message' => 'cancion creada',
-				'titulo' => $input['titulo'],
-			));
+			$this->Mensaje('200', 'cancion añadida', $input);
 		} else {
-			$json = $this->response(array(
-				'code' => 400,
-				'message' => 'Couldnt create song(User not found)',
-				'data' => 'empty'
-			));
+			$this->Mensaje('400', 'user not found', $input);
 		}
-		return $json;
 	}
 
 	public function get_Songs(){
@@ -57,22 +52,11 @@ class Controller_lista extends Controller_Rest
 
 		if($BDuser != null){
 			$users = Model_Canciones::find('all');
-			$json = $this->response(array(
-				'code' => 200,
-				'message' => 'lista de canciones',
-				'data' => $users
-			));
+			$this->Mensaje('200', 'Lista de canciones', $users);
 			
 		}else {
-			$json = $this->response(array(
-				'code' => 400,
-				'message' => 'Songs not found',
-				'data' => 'empty'
-			));
+			$this->Mensaje('400', 'Canciones no encontradas', $users);
 		}
-
-		return $json;
-
 	}
 
 	public function post_modifySong(){
@@ -134,20 +118,12 @@ class Controller_lista extends Controller_Rest
 					$songSearch->titulo = $input['titulo'];
 					$songSearch->save();
 				}
-				$json = $this->response(array(
-					'code' => 200,
-					'message' => 'song modificado',
-					'data' => $songSearch
-				));;
+				$this->Mensaje('200', 'Canciones modificada', $songSearch);
 			}
 
 		} else {
-			$json = $this->response(array(
-				'code' => 400,
-				'message' => 'Invalid user'
-			));
+			$this->Mensaje('400', 'Usuario no valido', $id);
 		}
-		return $json;
 	}
 
 	public function post_deleteSong(){
@@ -172,25 +148,23 @@ class Controller_lista extends Controller_Rest
 			));
 			if ($song != null) {
 				$song->delete();
-				$json = $this->response(array(
-					'code' => 200,
-					'message' => 'Song deleted',
-					'data' => $song
-				));;
+				$this->Mensaje('200', 'Cancion borrada', $song);
 			}else {
-				$json = $this->response(array(
-					'code' => 400,
-					'message' => 'Song not found',
-					'data' => $song
-				));;
+				$this->Mensaje('400', 'cancion no encontrada', $song);
 			}
 
 
 		} else {
-			$json = $this->response(array(
-				'code' => 400,
-				'message' => 'User not found'
-			));
+			$this->Mensaje('400', 'Usuario no valido', $id);
 		}
 	}
+
+	function Mensaje($code, $message, $data){
+    $json = $this->response(array(
+        'code' => $code,
+        'message' => $message,
+        'data' => $data
+    ));
+    return $json;
+}
 }
