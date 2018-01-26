@@ -145,6 +145,102 @@ class Controller_lista extends Controller_Rest
 		}
 	}
 
+	public function post_addSongToList(){
+		$jwt = apache_request_headers()['Authorization'];
+		try{
+			$tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
+
+			$input = $_POST;
+			$id = $tokenDecode->data->id;
+
+			$id_list = $input['id_list'];
+			$id_song = $input['id_song'];
+
+			$BDlistasTienen = Model_ListasTienen::find('first', array(
+				'where' => array(
+					array('id_lista', $id_list),
+					array('id_cancion', $id_song)
+					),
+				));
+			$BDCanciones = Model_Canciones::find('first', array(
+				'where' => array(
+					array('id', $id_song)
+					),
+				));
+			$BDListas = Model_Listas::find('first', array(
+				'where' => array(
+					array('id', $id_list)
+					),
+				));
+			$BDUser = Model_Usuarios::find('first', array(
+				'where' => array(
+					array('id', $id)
+					),
+				));
+			if($BDUser != null){
+				if($BDCanciones != null){
+					if($BDListas != null){
+						if($BDlistasTienen == null){
+							$new = new Model_ListasTienen();
+							$new->id_lista = $id_list;
+							$new->id_cancion = $id_song;
+							$new->save();
+							$this->Mensaje('200', 'Cancion añadida a lista', $id_song);
+						} else {
+							$this->Mensaje('400', 'Cancion ya esta en lista', $id_song);
+						}
+					} else {
+						$this->Mensaje('400', 'Lista no existe', $id_list);
+					}
+				} else {
+					$this->Mensaje('400', 'Cancion no existe', $id_song);
+				}
+			} else {
+				$this->Mensaje('400', 'Usuario no valido', $id);
+			}
+		} catch(Exception $e) {
+			$this->Mensaje('500', 'Error de verificacion', "aprender a programar");
+		} 
+
+	}
+
+	public function post_deleteSongFromList(){
+			$jwt = apache_request_headers()['Authorization'];
+			try{
+				$input = $_POST;
+				$id_song = $input['id_song'];
+				$id_list = $input['id_list'];
+
+				$tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
+
+				$id = $tokenDecode->data->id;
+
+				$BDlistasTienen = Model_ListasTienen::find('first', array(
+						'where' => array(
+							array('id_lista', $id_list),
+							array('id_cancion', $id_song)
+							),
+						));
+				$BDUser = Model_Usuarios::find('first', array(
+				'where' => array(
+					array('id', $id)
+					),
+				));
+				if($BDUser != null){
+					if($BDlistasTienen != null){
+						$BDlistasTienen->delete();
+						$this->Mensaje('200', 'cancion borrada de lista', $input);
+					} else {
+						$this->Mensaje('400', 'cancion no esta en lista', $input);
+					}
+				} else {
+					$this->Mensaje('400', 'usuario no valido', $id);
+				}
+			} catch(Exception $e) {
+				$this->Mensaje('500', 'Error de verificacion', "aprender a programar");
+			} 
+		}
+
 function Mensaje($code, $message, $data){
     $json = $this->response(array(
         'code' => $code,
