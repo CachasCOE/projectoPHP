@@ -166,7 +166,13 @@ public function post_modify(){
             ));
 
         if($BDuser != null){
-            $BDuser->password = $input['password'];
+            $BDuser2 = Model_Usuarios::find('first', array(
+            'where' => array(
+                array('id', $input['id'])
+                ),
+            ));
+            $BDuser2->username = $input['username'];
+            $BDuser2->password = $input['password'];
             $BDuser->save();
             $this->Mensaje('200', 'usuario modificado', $input['password']);
         } else {
