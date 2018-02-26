@@ -8,9 +8,6 @@ class Controller_cancion extends Controller_Rest
 	public function post_createSong(){
 		$input = $_POST;
 		$jwt = apache_request_headers()['Authorization'];
-		$titulo = $input['titulo'];
-		$artista = $input['artista'];
-		$direccion = $input['direccion'];
         //$id_usuario = $input['id_usuario'];
 
 		$tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
@@ -68,9 +65,6 @@ class Controller_cancion extends Controller_Rest
 
 		$input = $_POST;
 		$id_item = $input['id_item'];
-		$url = $input['url'];
-		$titulo = $input['titulo'];
-		$artista = $input['artista'];
 
 		$BDuser = Model_Usuarios::find('first', array(
 			'where' => array(

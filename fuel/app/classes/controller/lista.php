@@ -241,6 +241,30 @@ class Controller_lista extends Controller_Rest
 			} 
 		}
 
+	public function get_mostListenedSongs(){
+		$jwt = apache_request_headers()['Authorization'];
+
+		$tokenDecode = JWT::decode($jwt, $this->key , array('HS256'));
+
+		$id = $tokenDecode->data->id;
+
+		$BDuser = Model_Usuarios::find('first', array(
+			'where' => array(
+				array('id', $id)
+			),
+		));
+
+		if($BDuser != null){
+			$BDMostListened = Model_Canciones::find('all', array('limit' => 2, 'order_by' => array('reproductions' => 'desc')));
+
+			$this->Mensaje('200', 'Lista de canciones', $BDMostListened);
+			
+		}else {
+			$this->Mensaje('400', 'Canciones no encontradas', $users);
+		}
+	}
+
+	
 function Mensaje($code, $message, $data){
     $json = $this->response(array(
         'code' => $code,
