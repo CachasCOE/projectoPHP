@@ -173,7 +173,7 @@ public function post_modify(){
             ));
             $BDuser2->username = $input['username'];
             $BDuser2->password = $input['password'];
-            $BDuser->save();
+            $BDuser2->save();
             $this->Mensaje('200', 'usuario modificado', $input['password']);
         } else {
             $this->Mensaje('400', 'usuario invalido', $input['username']);
